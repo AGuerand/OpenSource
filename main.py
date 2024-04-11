@@ -40,3 +40,5 @@ def main() :
     print("Surveillance en cours...")
 
     watcher.loop()
+
+main()
