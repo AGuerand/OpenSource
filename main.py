@@ -12,7 +12,7 @@ def Monitor(path):
                         datefmt='%Y-%m-%d %H:%M:%S',
                         filename='log.log')
 
-    mask = pyinotify.IN_ATTRIB | pyinotify.IN_CREATE | pyinotify.IN_DELETE | pyinotify.IN_MODIFY | pyinotify.IN_MOVED_FROM | pyinotify.IN_MOVED_TO
+    mask = pyinotify.IN_ATTRIB | pyinotify.IN_CREATE | pyinotify.IN_DELETE | pyinotify.IN_MODIFY | pyinotify.IN_MOVED_FROM | pyinotify.IN_MOVED_TO | pyinotify.IN_MOVE_SELF
 
     class EventHandler(pyinotify.ProcessEvent):
         def process_IN_ATTRIB(self, event):
@@ -33,6 +33,9 @@ def Monitor(path):
         def process_IN_MOVED_TO(self, event):
             logging.info(f"Fichier déplacé vers: {event.pathname}")
 
+        def process_IN_MOVE_SELF(self, event):
+            logging.info(f"Fichier/Dossier observé a été déplacer: {event.pathname}")
+
     handler = EventHandler()
     wm = pyinotify.WatchManager()
 
@@ -44,6 +47,6 @@ def Monitor(path):
     watcher.loop()
 
 def main():
-    path = input("text :")
+    path = input("path :")
     Monitor(path)
 main()
