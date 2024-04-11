@@ -1,15 +1,14 @@
 import pyinotify
 import logging
 
-def main() :
+def Monitor(path):
 
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s - %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S',
                         filename='log.log')
-    
-    mask = pyinotify.IN_ATTRIB | pyinotify.IN_CREATE | pyinotify.IN_DELETE | pyinotify.IN_MODIFY | pyinotify.IN_MOVED_FROM | pyinotify.IN_MOVED_TO
 
+    mask = pyinotify.IN_ATTRIB | pyinotify.IN_CREATE | pyinotify.IN_DELETE | pyinotify.IN_MODIFY | pyinotify.IN_MOVED_FROM | pyinotify.IN_MOVED_TO
 
     class EventHandler(pyinotify.ProcessEvent):
         def process_IN_ATTRIB(self, event):
@@ -30,15 +29,18 @@ def main() :
         def process_IN_MOVED_TO(self, event):
             logging.info(f"Fichier déplacé vers: {event.pathname}")
 
-
     handler = EventHandler()
     wm = pyinotify.WatchManager()
 
     watcher = pyinotify.Notifier(wm, handler)
-    wm.add_watch('New', mask, rec=True)
+    wm.add_watch(path, mask, rec=True)
 
     print("Surveillance en cours...")
 
     watcher.loop()
+
+def main():
+    path = input("text :")
+    Monitor(path)
 
 main()
