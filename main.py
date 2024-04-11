@@ -1,8 +1,12 @@
 import pyinotify
 import logging
 
+pathArray = []
+
 def Monitor(path):
 
+    pathArray.append(path)
+    print(pathArray)
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s - %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S',
@@ -42,5 +46,4 @@ def Monitor(path):
 def main():
     path = input("text :")
     Monitor(path)
-
 main()
