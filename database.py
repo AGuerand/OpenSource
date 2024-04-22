@@ -20,15 +20,15 @@ def Insert_Path(database_name, pathname):
 
     try:
         cursor.execute('''INSERT INTO file_paths (pathname) VALUES (?)''', (pathname,))
-        print(f"Path '{pathname}' inserted into the database.")
+        print(f"Path '{pathname}' inserted")
     except sqlite3.IntegrityError:
-        print(f"Path '{pathname}' already exists in the database. Skipping insertion.")
+        print(f"Path '{pathname}' already exists")
 
 
     conn.commit()
     conn.close()
 
-    print(f"Path '{pathname}' inserted into the database.")
+    print(f"Path '{pathname}' inserted ")
 
 def print_database(database_name):
     conn = sqlite3.connect(database_name)

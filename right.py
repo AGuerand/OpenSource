@@ -1,10 +1,10 @@
 import os
 
-def perm(path, permissions, permissions, permissions):
+def perm(path, user, group, other):
 
     try:
-        os.chmod(path, (permissions * 8 * 8) + (permissions * 8) + permissions)
-        print("Autorisations changées", path)
+        os.chmod(path, (user * 8 * 8) + (group * 8) + other)
+        print("Autorisations définies avec succès pour le fichier", path)
     except Exception as e:
-        print("Erreur :", str(e))
+        print("Une erreur s'est produite lors de la définition des autorisations:", str(e))
 

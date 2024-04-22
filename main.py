@@ -17,7 +17,6 @@ def main():
     print_database("path.db")
 
     whattodo = input("Monitor = 1, Change Right = 2\n")
-    time.sleep(1)
     if int(whattodo) == 1 :
         Monitor(path)
     elif int(whattodo) == 2 :
@@ -25,5 +24,7 @@ def main():
         group= input("Group Right\n")
         other= input("Other Right\n")
         perm(path,int(user),int(group),int(other))
+    else :
+        print("womp womp")
 
 main()
