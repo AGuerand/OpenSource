@@ -42,3 +42,11 @@ def print_database(database_name):
         print(f"{row[0]}\t{row[1]}")
 
     conn.close()
+
+def get_path(database_name):
+    conn = sqlite3.connect(database_name)
+    cursor = conn.cursor()
+    cursor.execute("SELECT pathname FROM file_paths")
+    paths = [row[0] for row in cursor.fetchall()]
+    conn.close()
+    return paths

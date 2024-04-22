@@ -2,13 +2,11 @@ import pyinotify
 import logging
 import os
 import pwd
+from database import get_path
 
-pathArray = []
+def Monitor(database_name):
+    paths = get_path(database_name)
 
-def Monitor(path):
-
-    pathArray.append(path)
-    print(pathArray)
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s - %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S',
@@ -52,8 +50,10 @@ def Monitor(path):
     handler = EventHandler()
     wm = pyinotify.WatchManager()
 
+    for path in paths:
+        wm.add_watch(path, mask, rec=True)
+
     watcher = pyinotify.Notifier(wm, handler)
-    wm.add_watch(path, mask, rec=True)
 
     print("Surveillance ...")
 
