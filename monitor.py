@@ -55,6 +55,6 @@ def Monitor(path):
     watcher = pyinotify.Notifier(wm, handler)
     wm.add_watch(path, mask, rec=True)
 
-    print("Surveillance en cours...")
+    print("Surveillance ...")
 
     watcher.loop()
