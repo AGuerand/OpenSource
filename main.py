@@ -1,52 +1,29 @@
-import pyinotify
-import logging
+from monitor import Monitor
+from database import *
+import os
+from right import *
+import time
 
-pathArray = []
-
-def Monitor(path):
-
-    pathArray.append(path)
-    print(pathArray)
-    logging.basicConfig(level=logging.INFO,
-                        format='%(asctime)s - %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S',
-                        filename='log.log')
-
-    mask = pyinotify.IN_ATTRIB | pyinotify.IN_CREATE | pyinotify.IN_DELETE | pyinotify.IN_MODIFY | pyinotify.IN_MOVED_FROM | pyinotify.IN_MOVED_TO | pyinotify.IN_MOVE_SELF
-
-    class EventHandler(pyinotify.ProcessEvent):
-        def process_IN_ATTRIB(self, event):
-            logging.info(f"Attributs modifiés: {event.pathname}")
-
-        def process_IN_CREATE(self, event):
-            logging.info(f"Nouveau fichier créé: {event.pathname}")
-
-        def process_IN_DELETE(self, event):
-            logging.debug(f"Fichier supprimé: {event.pathname}")
-
-        def process_IN_MODIFY(self, event):
-            logging.info(f"Fichier modifié: {event.pathname}")
-
-        def process_IN_MOVED_FROM(self, event):
-            logging.info(f"Fichier déplacé de: {event.pathname}")
-
-        def process_IN_MOVED_TO(self, event):
-            logging.info(f"Fichier déplacé vers: {event.pathname}")
-
-        def process_IN_MOVE_SELF(self, event):
-            logging.info(f"Fichier/Dossier observé a été déplacer: {event.pathname}")
-
-    handler = EventHandler()
-    wm = pyinotify.WatchManager()
-
-    watcher = pyinotify.Notifier(wm, handler)
-    wm.add_watch(path, mask, rec=True)
-
-    print("Surveillance en cours...")
-
-    watcher.loop()
+db_path = "path.db"
 
 def main():
+    if os.path.exists(db_path):
+        pass
+    else :
+        Create_Database("path.db")
+
     path = input("path :")
-    Monitor(path)
+    Insert_Path("path.db", path)
+    print_database("path.db")
+
+    whattodo = input("monitor = 1, change right = 2\n")
+    time.sleep(1)
+    if int(whattodo) == 1 :
+        Monitor(path)
+    elif int(whattodo) == 2 :
+        user= input("user right\n")
+        group= input("group right\n")
+        other= input("other right\n")
+        perm(path,int(user),int(group),int(other))
+
 main()
