@@ -16,14 +16,14 @@ def main():
     Insert_Path("path.db", path)
     print_database("path.db")
 
-    whattodo = input("monitor = 1, change right = 2\n")
+    whattodo = input("Monitor = 1, Change Right = 2\n")
     time.sleep(1)
     if int(whattodo) == 1 :
         Monitor(path)
     elif int(whattodo) == 2 :
-        user= input("user right\n")
-        group= input("group right\n")
-        other= input("other right\n")
+        user= input("User Right\n")
+        group= input("Group Right\n")
+        other= input("Other Right\n")
         perm(path,int(user),int(group),int(other))
 
 main()
