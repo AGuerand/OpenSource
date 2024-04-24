@@ -50,3 +50,19 @@ def get_path(database_name):
     paths = [row[0] for row in cursor.fetchall()]
     conn.close()
     return paths
+
+def Delete_Path(database_name, pathname):
+    conn = sqlite3.connect(database_name)
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute('''DELETE FROM file_paths WHERE pathname = ?''', (pathname,))
+        if cursor.rowcount > 0:
+            print(f"'{pathname}' deleted.")
+        else:
+            print(f"'{pathname}' not found.")
+    except sqlite3.Error as e:
+        print("error:", e)
+
+    conn.commit()
+    conn.close()
