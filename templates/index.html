@@ -1,1 +1,81 @@
 <a href="{{ url_for('page') }}">cat</a>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File System Management</title>
+</head>
+<body>
+    <h1>Welcome to File System Management</h1>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <h2>Actions:</h2>
+    <ul>
+        <li><a href="{{ url_for('change_permissions') }}">Change Permissions</a></li>
+        <li><a href="{{ url_for('add_path') }}">Add Path</a></li>
+        <li><a href="{{ url_for('delete_path') }}">Delete Path</a></li>
+        <li><a href="{{ url_for('check_integrity') }}">Check Integrity</a></li>
+        <li><a href="{{ url_for('logout') }}">Logout</a></li> <!-- Assuming you have a logout route -->
+    </ul>
+
+    <!-- Form to change permissions -->
+    <h2>Change Permissions:</h2>
+    <form method="post" action="{{ url_for('change_permissions') }}">
+        <label for="chemin">Chemin ID:</label>
+        <input type="text" id="chemin" name="chemin" required><br><br>
+        <label for="user">User Right:</label>
+        <input type="number" id="user" name="user" required><br><br>
+        <label for="group">Group Right:</label>
+        <input type="number" id="group" name="group" required><br><br>
+        <label for="other">Other Right:</label>
+        <input type="number" id="other" name="other" required><br><br>
+        <button type="submit">Change Permissions</button>
+    </form>
+
+    <!-- Form to add a path -->
+    <h2>Add Path:</h2>
+    <form method="post" action="{{ url_for('add_path') }}">
+        <label for="path">Path:</label>
+        <input type="text" id="path" name="path" required><br><br>
+        <button type="submit">Add Path</button>
+    </form>
+
+    <!-- Form to delete a path -->
+    <h2>Delete Path:</h2>
+    <form method="post" action="{{ url_for('delete_path') }}">
+        <label for="path">Path:</label>
+        <input type="text" id="path" name="path" required><br><br>
+        <button type="submit">Delete Path</button>
+    </form>
+
+    <!-- Button to check integrity -->
+    <h2>Check Integrity:</h2>
+    <form method="get" action="{{ url_for('check_integrity') }}">
+        <button type="submit">Check Integrity</button>
+    </form>
+    <h2>Database Content:</h2>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Pathname</th>
+        </tr>
+        {% for row in database_content %}
+            <tr>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
