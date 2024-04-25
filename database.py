@@ -31,7 +31,7 @@ def Insert_Path(database_name, pathname, queue):
     conn.commit()  # Commit changes to the database
     conn.close()  # Close database connection
 
-    print(f"Path '{pathname}' inserted ")  # Print completion message
+    
     
     queue.put("Path Added")
 
@@ -79,7 +79,6 @@ def Delete_Path(database_name, pathname, queue):
             print(f"'{pathname}' not found.")  # Print message if pathname not found
     except sqlite3.Error as e:
         print("error:", e)  # Print error message if an error occurs
-
     queue.put("file deleted")
 
     conn.commit()  # Commit changes to the database

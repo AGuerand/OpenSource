@@ -1,12 +1,30 @@
-import pyinotify  # Module for monitoring filesystem events
-import logging  # Logging module for logging events
-import os  # Operating System module
-import pwd  # Module for working with user account information
-from database import get_path  # Function to retrieve paths from the database
+import pyinotify
+import logging
+import os
+import pwd
+from database import get_path
+import time
+import threading
 
 def Monitor(database_name, queue):
-    # Get paths from the database
+    def update_watch_manager(wm, current_paths, new_paths):
+        # Find paths to be added
+        paths_to_add = [path for path in new_paths if path not in current_paths]
+        for path in paths_to_add:
+            wm.add_watch(path, mask, rec=True)
+            current_paths.append(path)
+            print(f"New path added to monitoring: {path}")
+
+        # Find paths to be removed
+        paths_to_remove = [path for path in current_paths if path not in new_paths]
+        for path in paths_to_remove:
+            wm.rm_watch(wm.get_wd(path))
+            current_paths.remove(path)
+            print(f"Path removed from monitoring: {path}")
+
+    # Get initial paths from the database
     paths = get_path(database_name)
+
 
     # Configure logging
     logging.basicConfig(level=logging.INFO,
@@ -75,4 +93,20 @@ def Monitor(database_name, queue):
     # Start monitoring
     print("Surveillance ...")
     queue.put("Update")
-    watcher.loop()
+    
+    # Function to start the watcher loop in a separate thread
+    def start_watcher_loop():
+        watcher.loop()
+
+    # Start the watcher loop in a separate thread
+    watcher_thread = threading.Thread(target=start_watcher_loop)
+    watcher_thread.start()
+    
+    # Periodically check for new paths and add them to watch manager
+    while True:
+        try:
+            time.sleep(1)  # Check every 1 second for updates
+            new_paths = get_path(database_name)
+            update_watch_manager(wm, paths, new_paths)
+        except Exception as e:
+            print(f"Error: {e}")

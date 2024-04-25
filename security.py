@@ -20,3 +20,5 @@ def password():
     else:
         print("Mot de passe incorrect.")  # Print message for incorrect password
         return False  # Return False if password is incorrect
+
+
