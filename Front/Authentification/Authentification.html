@@ -3,23 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page de Connexion</title>
-    <link rel="stylesheet" href="Connexion.css">
+    <title>Authentification</title>
+    <link rel="stylesheet" href="Authentification.css">
+    <link rel="stylesheet" href="Double_Authentification/DoubleAuthentification.css">
 </head>
 <body>
     <div class="login-container">
-        <h2>Connexion</h2>
+        <h2>Authentification</h2>
         <form action="index.html" method="POST"> <!-- Assurez-vous d'ajuster l'action et la méthode selon vos besoins -->
-            <div class="input-group">
-                <label for="username">Nom d'utilisateur :</label>
-                <input type="text" id="username" name="username" required>
-            </div>
             <div class="input-group">
                 <label for="password">Mot de passe :</label>
                 <input type="password" id="password" name="password" required>
             </div>
-            <button type="submit" class="button">Se Connecter</button>
+            <button type="submit" class="button">S'authentifier</button>
         </form>
     </div>
+    <script src="Authentification.js"></script>
 </body>
 </html>
