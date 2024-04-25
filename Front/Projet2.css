@@ -1,0 +1,149 @@
+body {
+  font-family: "Arial", sans-serif;
+  margin: 0;
+  background-color: #191414;
+  color: #FFFFFF;
+}
+
+h1, h2 {
+  text-align: center;
+  margin-top: 0;
+}
+
+a {
+  color: #FFFFFF;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+.menu {
+  background-color: #121212;
+  padding: 10px 0;
+  text-align: center;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
+}
+
+.menu-item {
+  display: inline-block;
+  margin: 0 20px;
+}
+
+.menu-item a {
+  color: #FFFFFF;
+}
+
+.header {
+  background-color: #2fc3e4;
+  padding: 60px 0 20px;
+  text-align: center;
+  color: #FFFFFF;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+  width: 150px;
+  height: auto;
+}
+
+file-details {
+  width: 40%;
+  float: left;
+  margin: 20px;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #1DB954;
+  border: 2px solid #191414;
+}
+
+.file-details #fileProperties p {
+  margin-bottom: 10px;
+}
+
+.file-details #fileProperties p span {
+  font-weight: bold;
+}
+
+.file-options {
+  width: 40%;
+  float: left;
+  margin: 20px;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #2fc3e4;
+  border: 2px solid #191414;
+}
+
+.file-options #fileOptions li {
+  margin-bottom: 10px;
+}
+
+.file-select {
+  width: 80%;
+  margin: 0 auto;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #191414;
+  color: #FFFFFF;
+  text-align: center;
+}
+
+.file-select select {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #26b9dd;
+  border-radius: 5px;
+  background-color: #191414;
+  color: #FFFFFF;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.file-details, .file-options {
+  width: 30%;
+  float: left;
+  margin: 125px;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #26b9dd;
+  border: 2px solid #191414;
+}
+
+.file-details #fileProperties p, .file-options #fileProperties p {
+  margin-bottom: 10px;
+}
+
+.file-details #fileProperties p span, .file-options #fileProperties p span {
+  font-weight: bold;
+}
+
+.input-group {
+  display: flex;
+  justify-content: center;
+}
+
+.button {
+  display: flex; 
+  justify-content: center;
+}
+
+.button {
+  background-color: #FFFFFF;
+  color: #191414;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.button:hover {
+  background-color: #e6e6e6;
+}/*# sourceMappingURL=ProjetTest.css.map */
