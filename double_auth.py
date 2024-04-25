@@ -49,7 +49,7 @@ def double_auth():
 
     # Prompt user for OTP input
     user_input = input("Entrez le token OTP : ")
-    if otp.verify(user_input):  # Verify the OTP entered by the user
+    if otp_value == user_input:  # Verify the OTP entered by the user
         print("Token valide. Accès autorisé.")  # Print message for valid token
         return True  # Return True if token is valid
     else:

@@ -5,18 +5,18 @@ from database import *  # Functions related to database operations
 import os  # Operating System module
 from right import *  # Functions for handling permissions
 import threading  # Threading for concurrent execution
-from security import *  # Security-related functions
 import subprocess  # Subprocess module for executing external commands
 import sys  # System-specific parameters and functions
 from double_auth import *  # Double authentication module
 import queue
+from integrity import *
 
 # Path to the database
 db_path = "path.db"
 
 # Function to install dependencies
 def install_dependencies():
-    dependencies = ["argon2-cffi"]  # List of dependencies to install
+    dependencies = ["argon2-cffi","Flask"]  # List of dependencies to install
 
     # Loop through dependencies and install each one
     for package in dependencies:
@@ -58,7 +58,7 @@ def main():
 
 
         # Prompt user for action
-        whattodo = input("Changer droit = 1, Ajouter chemin = 2, Suprimer chemin = 3, Fin = 0\n")
+        whattodo = input("Changer droit = 1, Ajouter chemin = 2, Suprimer chemin = 3, Verifier l'integrité ,Fin = 0\n")
 
         if int(whattodo) == 1:
             conn = sqlite3.connect("path.db")
@@ -94,6 +94,10 @@ def main():
             path = input("path :")
             Delete_Path("path.db", path, update_queue)
             print_database("path.db")
+
+        elif int(whattodo) == 4:
+            # Intégrité
+            use_integrity()
             
         
         elif int(whattodo) == 0:
@@ -107,4 +111,7 @@ def main():
 
 # Install dependencies before running main function
 install_dependencies()
+
+from security import *
+
 main()
