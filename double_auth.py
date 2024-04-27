@@ -38,9 +38,9 @@ def double_auth():
     otp_value = otp.now()  
 
     
-    sender_email = 'nova77230@gmail.com'
-    sender_password = 'yfjq hsmj dwqp lcjx'
-    receiver_email = 'anthony.guerand2001@gmail.com'
+    sender_email = 'mel'
+    sender_password = 'pass'
+    receiver_email = 'mel'
     subject = 'Email opt'
     message = f"opt : {otp_value}"
 
