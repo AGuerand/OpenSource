@@ -13,40 +13,69 @@ from right import perm
 from integrity import use_integrity
 import threading
 import queue
+import logging
+from logging.handlers import RotatingFileHandler
+from flask import jsonify
+import time
+import pwd
+import grp
+from get_path import *
 
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret key'
 
+
+log_file = 'flask_app.log'  
+login_verif = False
+
+file_handler = RotatingFileHandler(log_file, maxBytes=1024 * 1024, backupCount=10)
+
+
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(formatter)
+
+
+app.logger.addHandler(file_handler)
+
+
+app.logger.setLevel(logging.INFO)  
+
+
+werkzeug_logger = logging.getLogger('werkzeug')
+werkzeug_logger.disabled = True
+
 update_queue = queue.Queue()
 
+
+
 def print_database(database_name):
-    # Connect to the database
+   
     conn = sqlite3.connect(database_name)
     cursor = conn.cursor()
 
-    # Retrieve all rows from file_paths table
+    
     cursor.execute('''SELECT * FROM file_paths''')
     rows = cursor.fetchall()
 
     print("ID\tPathname")
     for row in rows:
-        print(f"{row[0]}\t{row[1]}")  # Print ID and pathname for each row
+        print(f"{row[0]}\t{row[1]}") 
 
-    conn.close()  # Close database connection
+    conn.close()  
 
-    # Return the database content
+   
     return rows
 
 def main():
-    # Check if the database file exists, if not, create it
+    
     if not os.path.exists("path.db"):
         Create_Database("path.db")
 
-    # Get paths from the database
+    
     paths = get_path("path.db")
 
-    # Start monitoring thread
+    
     monitor_thread = threading.Thread(target=Monitor, args=("path.db", update_queue))
     monitor_thread.daemon = True
     monitor_thread.start()
@@ -64,16 +93,29 @@ def double_auth(sender_email, sender_password, receiver_email):
 
     return secret, otp_value
 
+@app.route('/get_log_content')
+def get_log_content():
+    
+    with open('log.log', 'r') as file:
+       log_contents = '\n'.join([line.rstrip('\n') + '\n' for line in file])
+
+    
+    return log_contents
+
+
 @app.route('/')
 def index():
-    # Check if user is logged in
+    pathnames = get_paths('path.db')
+    
     if 'logged_in' in session and session['logged_in']:
-        # User is logged in, display the index page
+        integrity_results = use_integrity("path.db", "integrity.db")
         main()
         database_content = print_database("path.db")
-        return render_template('index.html', database_content=database_content)
+        with open('log.log', 'r') as file:
+            log_contents = '\n'.join([line.rstrip('\n') + '\n' for line in file])
+        return render_template('index.html',database_contents=pathnames,integrity_results=integrity_results,database_content=database_content, log_contents=log_contents)
     else:
-        # User is not logged in, redirect to the password page
+        
         return redirect(url_for('login'))
 
 @app.route('/change_permissions', methods=['POST'])
@@ -118,59 +160,119 @@ def delete_path():
 
     return redirect(url_for('index'))
 
+
 @app.route('/check_integrity')
 def check_integrity():
     use_integrity()
-    flash('Integrity checked successfully.', 'success')
-    return redirect(url_for('index'))
+    return jsonify({'message': 'Integrity checked successfully.'})
 
 @app.route('/page')
 def page():
     return render_template('page.html')
 
-# Route to logout
-@app.route('/logout')
+
+@app.route('/logout', methods=['POST'])
 def logout():
-    # Clear the session to logout the user
+    global login_verif
+    login_verif = False
     session.clear()
     return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    global login_verif
     if request.method == 'POST':
-        # Verify password
+        
         if verify_password("password.txt", request.form['password']):
-            # Generate OTP and send email
+            
             sender_email = 'nova77230@gmail.com'
             sender_password = 'yfjq hsmj dwqp lcjx'
             receiver_email = 'anthony.guerand2001@gmail.com'
             secret, otp_value = double_auth(sender_email, sender_password, receiver_email)
-            # Store secret in session for verification later
+           
             session['secret'] = secret
             flash('OTP sent to your email. Please check and enter it below.', 'success')
-            return redirect(url_for('auth'))  # Redirect to the authentication page
+            login_verif = True
+            return redirect(url_for('auth'))  
         else:
             flash('Invalid password.', 'error')
     return render_template('login.html')
 
 @app.route('/auth', methods=['GET', 'POST'])
 def auth():
+    global login_verif
+    if login_verif == False :
+        return redirect(url_for('login')) 
+
+    if 'logged_in' in session and session['logged_in']:
+        return redirect(url_for('index'))  
     if request.method == 'POST':
-        user_token = request.form.get('token')  # Get the user-provided token
-        secret = session.get('secret')  # Retrieve the secret from the session
+        user_token = request.form.get('token')  
+        secret = session.get('secret')  
         if secret:
             otp = pyotp.TOTP(secret)
             if otp.verify(user_token):
                 session['logged_in'] = True
                 flash('Authentication successful.', 'success')
-                return redirect(url_for('index'))  # Redirect to the index page upon successful authentication
+                return redirect(url_for('index'))  
             else:
-                flash('Authentication failed. Please try again.', 'error')
+                flash('Authentication échouée.', 'error')
+                return redirect(url_for('login'))
         else:
-            flash('Authentication session expired. Please login again.', 'error')
-            return redirect(url_for('login'))  # Redirect to the login page if no secret found in the session
+            flash('Authentication exprirée.', 'error')
+            return redirect(url_for('login'))  
     return render_template('auth.html')
 
+@app.route('/update_integrity', methods=['POST'])
+def update_integrity():
+    integrity_results = use_integrity("path.db", "integrity.db")
+    return jsonify(integrity_results)
+
+def get_paths(database_name):
+    # Connect to the database
+    conn = sqlite3.connect(database_name)
+    cursor = conn.cursor()
+
+    # Select all pathnames from file_paths table
+    cursor.execute("SELECT pathname FROM file_paths")
+    paths = [row[0] for row in cursor.fetchall()]  # Fetch all pathnames and store in a list
+
+    conn.close()  # Close database connection
+    return paths 
+
+# Function to fetch file details from the database
+def get_file_details(file_path):
+    file_name = os.path.basename(file_path)
+    size = os.path.getsize(file_path)
+    file_type = os.path.splitext(file_path)[1]
+    last_modified = os.path.getmtime(file_path)  # Returns timestamp
+
+    # Convert timestamp to a human-readable format
+    last_modified_formatted = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(last_modified))
+
+    file_owner = pwd.getpwuid(os.stat(file_path).st_uid).pw_name
+    file_group = grp.getgrgid(os.stat(file_path).st_gid).gr_name
+
+    return {
+        'fileName': file_name,
+        'size': size,
+        'type': file_type,
+        'lastModified': last_modified_formatted,
+        'owner': file_owner,
+        'group': file_group
+    }
+
+
+
+# Route to handle fetching file details
+@app.route('/get_file_details')
+def get_file_details_route():
+    selected_file = request.args.get('file')
+    if selected_file:
+        file_details = get_file_details(selected_file)
+        return jsonify(file_details)
+    else:
+        return jsonify({'error': 'No file selected'})
 
 
 if __name__ == '__main__':

@@ -1,70 +1,108 @@
-<a href="{{ url_for('page') }}">cat</a>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File System Management</title>
+    <title>Gestion des fichiers</title>
+    <link rel="stylesheet" href="../static/Projet2.css">
 </head>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Include jQuery -->
+    <script>
+        $(document).ready(function() {
+            $('#updateButton').click(function() {
+                $.ajax({
+                    url: '/update_integrity',
+                    type: 'POST',
+                    success: function(data) {
+                        $('#integrityResults').empty(); // Clear previous results
+                        data.forEach(function(item) {
+                            var status = item[2] ? 'Modified' : 'Not Modified'; // Check if modified
+                            $('#integrityResults').append('<li>Path ID: ' + item[0] + ', Path: ' + item[1] + ', Status: ' + status + '</li>');
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 <body>
-    <h1>Welcome to File System Management</h1>
-    
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
-    <h2>Actions:</h2>
-    <ul>
-        <li><a href="{{ url_for('change_permissions') }}">Change Permissions</a></li>
-        <li><a href="{{ url_for('add_path') }}">Add Path</a></li>
-        <li><a href="{{ url_for('delete_path') }}">Delete Path</a></li>
-        <li><a href="{{ url_for('check_integrity') }}">Check Integrity</a></li>
-        <li><a href="{{ url_for('logout') }}">Logout</a></li> <!-- Assuming you have a logout route -->
-    </ul>
-
-    <!-- Form to change permissions -->
-    <h2>Change Permissions:</h2>
-    <form method="post" action="{{ url_for('change_permissions') }}">
-        <label for="chemin">Chemin ID:</label>
-        <input type="text" id="chemin" name="chemin" required><br><br>
-        <label for="user">User Right:</label>
-        <input type="number" id="user" name="user" required><br><br>
-        <label for="group">Group Right:</label>
-        <input type="number" id="group" name="group" required><br><br>
-        <label for="other">Other Right:</label>
-        <input type="number" id="other" name="other" required><br><br>
-        <button type="submit">Change Permissions</button>
+    <form action="{{ url_for('logout') }}" method="post">
+        <input type="submit" value="Logout">
     </form>
+    <h1>Gestion des fichiers</h1>
+
+    <div class="file-select">
+        <select id="fileSelect" onchange="displayFileDetails()">
+            <option value="" selected disabled>Sélectionnez un fichier...</option>
+            {% for path in database_contents %}
+                <option value="{{ path }}">{{ path }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="file-details">
+        <h2>Détails du fichier sélectionné</h2>
+        <div id="fileProperties">
+            Sélectionnez un fichier pour afficher les détails.
+        </div>
+    </div>
+
+
+    <div class="file-options">
+        <h2>Modifier le fichier</h2>
+        <!-- Form to change permissions -->
+            <form method="post" action="{{ url_for('change_permissions') }}">
+                <label for="chemin">Chemin ID:</label>
+                <input type="text" id="chemin" name="chemin" required><br><br>
+                <label for="user">User Right:</label>
+                <input type="number" id="user" name="user" required><br><br>
+                <label for="group">Group Right:</label>
+                <input type="number" id="group" name="group" required><br><br>
+                <label for="other">Other Right:</label>
+                <input type="number" id="other" name="other" required><br><br>
+                <button type="submit">Change Permissions</button>
+            </form>
+    </div>
+        
+            <script src="../static/Projet2.js"></script>
+            <script>
+                function toggleInput(inputId) {
+                    var input = document.getElementById(inputId);
+                    input.style.display = input.style.display === "none" ? "inline-block" : "none";
+                }
+            </script>
+        </ul>
+    </div>
 
     <!-- Form to add a path -->
-    <h2>Add Path:</h2>
-    <form method="post" action="{{ url_for('add_path') }}">
-        <label for="path">Path:</label>
-        <input type="text" id="path" name="path" required><br><br>
-        <button type="submit">Add Path</button>
-    </form>
+<p>Add Path:</p>
+<form method="post" action="{{ url_for('add_path') }}" style="margin-left: 50px;">
+    <label for="path">Path:</label>
+    <input type="text" id="path" name="path" required><br><br>
+    <button type="submit">Add Path</button>
+</form>
 
-    <!-- Form to delete a path -->
-    <h2>Delete Path:</h2>
-    <form method="post" action="{{ url_for('delete_path') }}">
-        <label for="path">Path:</label>
-        <input type="text" id="path" name="path" required><br><br>
-        <button type="submit">Delete Path</button>
-    </form>
+<!-- Form to delete a path -->
+<p>Delete Path:</p>
+<form method="post" action="{{ url_for('delete_path') }}" style="margin-left: 50px;">
+    <label for="path">Path:</label>
+    <input type="text" id="path" name="path" required><br><br>
+    <button type="submit">Delete Path</button>
+</form>
+<br>
+<br>
 
-    <!-- Button to check integrity -->
-    <h2>Check Integrity:</h2>
-    <form method="get" action="{{ url_for('check_integrity') }}">
-        <button type="submit">Check Integrity</button>
-    </form>
-    <h2>Database Content:</h2>
+<h1>Integrity Results</h1>
+<div id="integrityResults">
+    <ul>
+        {% for result in integrity_results %}
+            <li>Path ID: {{ result[0] }}, Path: {{ result[1] }}, Modified: {% if result[2] %}Yes{% else %}No{% endif %}</li>
+        {% endfor %}
+    </ul>    
+</div>
+<button id="updateButton">Update Integrity</button>
+<br>
+<br>
+h2>Database Content:</h2>
     <table border="1">
         <tr>
             <th>ID</th>
@@ -77,5 +115,77 @@
             </tr>
         {% endfor %}
     </table>
+
+</table>
+    </table>
+    <h1>Log Viewer</h1>
+    <pre id="logContent">{{ log_contents }}</pre>
+
+    <script src="../static/Projet2.js">
+
+    </script>
+
+    <script>
+        // Function to fetch and update log c
+        // Function to fetch and update log content
+        function updateLogContent() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById("logContent").innerText = this.responseText;
+                }
+            };
+            xhttp.open("GET", "/get_log_content", true);
+            xhttp.send();
+        }
+
+        // Update log content every 5 seconds
+        setInterval(function() {
+            updateLogContent();
+        }, 5000);
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Include jQuery -->
+    <script>
+        $(document).ready(function() {
+            $('#updateButton').click(function() {
+                $.ajax({
+                    url: '/update_integrity',
+                    type: 'POST',
+                    success: function(data) {
+                        $('#integrityResults').html(data); // Update the integrity results section
+                    }
+                });
+            });
+        });
+    </script>
+    <script>
+        function displayFileDetails() {
+            var selectedFile = document.getElementById("fileSelect").value;
+
+            if (selectedFile) {
+                // Make an AJAX request to fetch file details
+                fetch('/get_file_details?file=' + selectedFile)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Update the fileProperties div with the fetched details
+                        document.getElementById("fileProperties").innerHTML = `
+                            <p><strong>Nom du fichier:</strong> ${data.fileName}</p>
+                            <p><strong>Taille:</strong> ${data.size}</p>
+                            <p><strong>Type:</strong> ${data.type}</p>
+                            <p><strong>Dernière modification:</strong> ${data.lastModified}</p>
+                            <p><strong>Propriétaire:</strong> ${data.owner}</p>
+                            <p><strong>Groupe:</strong> ${data.group}</p>
+                        `;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching file details:', error);
+                    });
+            } else {
+                // If no file is selected, display a message
+                document.getElementById("fileProperties").innerText = "Sélectionnez un fichier pour afficher les détails.";
+            }
+        }
+    </script>
 </body>
 </html>

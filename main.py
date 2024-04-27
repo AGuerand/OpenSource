@@ -1,49 +1,45 @@
-# Import necessary modules
 import sqlite3 
-from monitor import Monitor  # Module for monitoring
-from database import *  # Functions related to database operations
-import os  # Operating System module
-from right import *  # Functions for handling permissions
-import threading  # Threading for concurrent execution
-import subprocess  # Subprocess module for executing external commands
-import sys  # System-specific parameters and functions
-from double_auth import *  # Double authentication module
+from monitor import Monitor 
+from database import *  
+import os  
+from right import *  
+import threading  
+import subprocess  
+import sys  
+from double_auth import *  
 import queue
 from integrity import *
 
-# Path to the database
+
 db_path = "path.db"
 
-# Function to install dependencies
-def install_dependencies():
-    dependencies = ["argon2-cffi","Flask"]  # List of dependencies to install
 
-    # Loop through dependencies and install each one
+def install_dependencies():
+    dependencies = ["argon2-cffi","Flask"] 
+
+    
     for package in dependencies:
         subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
-# Main function
+
 def main():
-    # Check if the database file exists, if not, create it
-    if os.path.exists(db_path):
-        pass
-    else:
+    
+    if not os.path.exists(db_path):
         Create_Database("path.db")
 
-    # Get paths from the database
+    
     paths = get_path("path.db")
 
-    # Perform password and double authentication checks
+   
     if password() == True:
         if double_auth() == True:
             pass
         else:
-            os._exit(0)  # Exit if double authentication fails
+            os._exit(0)  
     else:
-        os._exit(0)  # Exit if password check fails
+        os._exit(0)  
 
     update_queue = queue.Queue()
-    # Start monitoring thread
     monitor_thread = threading.Thread(target=Monitor, args=("path.db", update_queue))
     monitor_thread.daemon = True
     monitor_thread.start()
@@ -57,13 +53,13 @@ def main():
                 print("Path deleted. Restarting monitoring...")
 
 
-        # Prompt user for action
+        
         whattodo = input("Changer droit = 1, Ajouter chemin = 2, Suprimer chemin = 3, Verifier l'integrité ,Fin = 0\n")
 
         if int(whattodo) == 1:
             conn = sqlite3.connect("path.db")
             cursor = conn.cursor()
-            # Change permissions
+            
             print_database("path.db")
             try:
                 choix_id = int(input("Veuillez saisir l'ID du chemin de fichier que vous souhaitez sélectionner : "))
@@ -83,33 +79,33 @@ def main():
             perm(chemin[0], int(user), int(group), int(other))
 
         elif int(whattodo) == 2:
-            # Add path to the database
+            
             path = input("path :")
             Insert_Path("path.db", path, update_queue)
             print_database("path.db")
            
 
         elif int(whattodo) == 3:
-            # Delete path from the database
+            
             path = input("path :")
             Delete_Path("path.db", path, update_queue)
             print_database("path.db")
 
         elif int(whattodo) == 4:
-            # Intégrité
-            use_integrity()
+            
+            use_integrity("path.db", "integrity.db")
             
         
         elif int(whattodo) == 0:
-            # Exit the program
+            
             print("exit")
             os._exit(0)
             
         else:
-            # Invalid input
+            
             print("womp womp")
 
-# Install dependencies before running main function
+
 install_dependencies()
 
 from security import *

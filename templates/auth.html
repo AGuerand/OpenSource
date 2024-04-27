@@ -1,16 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password Form</title>
+    <title>Double Authentification</title>
+    <link rel="stylesheet" href="../static/doubleAuthentification.css">
 </head>
 <body>
-    <h1>Enter Password</h1>
-    <form method="POST">
-        <label for="token">code:</label>
-        <input type="token" id="token" name="token" required>
-        <button type="submit">Submit</button>
-    </form>
+    <div class="login-container">
+        <h2>Double Authentification</h2>
+        <form method="POST">
+            <label for="token">code:</label>
+            <input type="token" id="token" name="token" required>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    <script src="../static/doubleAuthentification.js"> </script>
 </body>
 </html>

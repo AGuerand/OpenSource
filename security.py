@@ -1,24 +1,24 @@
-import argon2  # Argon2 password hashing module
+import argon2  
 
 def verify_password(file_path, password):
     with open(file_path, 'r') as file:
         hashed_password = file.read().strip()
-        hasher = argon2.PasswordHasher()  # Create an Argon2 password hasher instance
+        hasher = argon2.PasswordHasher() 
         try:
-            hasher.verify(hashed_password, password)  # Verify the provided password against the hashed password
-            return True  # Return True if verification succeeds
+            hasher.verify(hashed_password, password) 
+            return True  
         except argon2.exceptions.VerifyMismatchError:
-            return False  # Return False if verification fails
+            return False  
 
 def password():
-    file_path = "password.txt"  # Path to the file containing the hashed password
+    file_path = "password.txt"  
 
-    user_input_password = input("Mot de passe : ")  # Prompt user for password input
+    user_input_password = input("Mot de passe : ")  
     if verify_password(file_path, user_input_password):
-        print("Mot de passe correct.")  # Print message for correct password
-        return True  # Return True if password is correct
+        print("Mot de passe correct.")  
+        return True  
     else:
-        print("Mot de passe incorrect.")  # Print message for incorrect password
-        return False  # Return False if password is incorrect
+        print("Mot de passe incorrect.")  
+        return False  
 
 

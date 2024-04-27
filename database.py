@@ -83,3 +83,11 @@ def Delete_Path(database_name, pathname, queue):
 
     conn.commit()  # Commit changes to the database
     conn.close()  # Close database connection
+
+def is_path_in_database(path, database_name):
+    conn = sqlite3.connect(database_name)
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM file_paths WHERE pathname=?", (path,))
+    path_exists = cursor.fetchone() is not None
+    conn.close()
+    return path_exists

@@ -1,99 +1,84 @@
-import os
 import sqlite3
 import hashlib
+import os
 
-def create_database():
-    """Create a SQLite database to store file hashes."""
-    conn = sqlite3.connect('file_integrity.db')
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS file_hashes (
-            file_path TEXT PRIMARY KEY,
-            hash TEXT
-        )
-    ''')
-    conn.commit()
-    conn.close()
-
-def load_previous_integrity_report():
-    """Load previous integrity report from SQLite database."""
-    integrity_report = {}
-    conn = sqlite3.connect('file_integrity.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT file_path, hash FROM file_hashes')
-    rows = cursor.fetchall()
-    for row in rows:
-        integrity_report[row[0]] = row[1]
-    conn.close()
-    return integrity_report
-
-def save_current_integrity_report(integrity_report):
-    """Save current integrity report to SQLite database."""
-    conn = sqlite3.connect('file_integrity.db')
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM file_hashes')  # Clear previous data
-    for file_path, hash_value in integrity_report.items():
-        cursor.execute('INSERT INTO file_hashes (file_path, hash) VALUES (?, ?)', (file_path, hash_value))
-    conn.commit()
-    conn.close()
-
+# Function to calculate hash of a file
 def calculate_hash(file_path):
-    """Calculate the SHA256 hash of a file."""
     hasher = hashlib.sha256()
     with open(file_path, 'rb') as f:
-        while True:
-            data = f.read(65536)  # 64KB chunks
-            if not data:
-                break
-            hasher.update(data)
+        for chunk in iter(lambda: f.read(4096), b""):
+            hasher.update(chunk)
     return hasher.hexdigest()
 
-def check_integrity(directory):
-    """Check the integrity of files in a directory and store hashes in SQLite database."""
-    integrity_report = {}
-    for root, dirs, files in os.walk(directory):
-        for file_name in files:
-            file_path = os.path.join(root, file_name)
-            file_hash = calculate_hash(file_path)
-            integrity_report[file_path] = file_hash
-    
-    # Enregistrer les empreintes de hachage dans la base de données
-    save_current_integrity_report(integrity_report)
-    
-    return integrity_report
+# Function to check integrity and update database
+def check_integrity(db_file_path, integrity_db_file):
+    conn = sqlite3.connect(db_file_path)
+    c = conn.cursor()
 
-def detect_unauthorized_changes(previous_integrity, current_integrity):
-    """Detect unauthorized changes between previous and current integrity reports."""
-    unauthorized_changes = {}
-    for file_path, current_hash in current_integrity.items():
-        if file_path not in previous_integrity:
-            unauthorized_changes[file_path] = "New File"
-        elif current_hash != previous_integrity[file_path]:
-            unauthorized_changes[file_path] = "Modified"
-    
-    for file_path, previous_hash in previous_integrity.items():
-        if file_path not in current_integrity:
-            unauthorized_changes[file_path] = "Deleted"
+    # Connect to integrity database
+    conn_integrity = sqlite3.connect(integrity_db_file)
+    c_integrity = conn_integrity.cursor()
 
-    return unauthorized_changes
+    # Ensure file_hashes table exists
+    c_integrity.execute('''CREATE TABLE IF NOT EXISTS file_hashes
+                           (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            file_path_id INTEGER NOT NULL,
+                            hash TEXT NOT NULL,
+                            modified INTEGER DEFAULT 0,
+                            FOREIGN KEY(file_path_id) REFERENCES file_paths(id))''')
 
-def use_integrity():
-    # Exemple d'utilisation:
-    create_database()
-    conn = sqlite3.connect("path.db")
-    cursor = conn.cursor()
+    # Retrieve paths from path.db
+    c.execute('SELECT id, pathname FROM file_paths')
+    rows = c.fetchall()
 
-    # Retrieve all rows from file_paths table
-    cursor.execute('''SELECT * FROM file_paths''')
-    rows = cursor.fetchall()
+    changes_detected = []
+
     for row in rows:
-        directory_path = row[1]
-        previous_integrity = load_previous_integrity_report()
-        current_integrity = check_integrity(directory_path)
-        changes = detect_unauthorized_changes(previous_integrity, current_integrity)
+        path_id, path = row
+        modified = False
 
-    # Traiter les modifications non autorisées détectées
-    for file_path, change_type in changes.items():
-        print(f"{file_path}: {change_type}")
+        if os.path.isdir(path):
+            for root, _, files in os.walk(path):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    file_hash = calculate_hash(file_path)
 
-use_integrity()
+                    c_integrity.execute('SELECT hash FROM file_hashes WHERE file_path_id=?', (path_id,))
+                    existing_hash = c_integrity.fetchone()
+
+                    if not existing_hash:
+                        c_integrity.execute('INSERT INTO file_hashes (file_path_id, hash, modified) VALUES (?, ?, ?)', (path_id, file_hash, 1))
+                    elif existing_hash[0] != file_hash:
+                        modified = True
+                        c_integrity.execute('UPDATE file_hashes SET hash=?, modified=? WHERE file_path_id=?', (file_hash, 1, path_id))
+
+        elif os.path.isfile(path):
+            file_hash = calculate_hash(path)
+
+            c_integrity.execute('SELECT hash FROM file_hashes WHERE file_path_id=?', (path_id,))
+            existing_hash = c_integrity.fetchone()
+
+            if not existing_hash:
+                c_integrity.execute('INSERT INTO file_hashes (file_path_id, hash, modified) VALUES (?, ?, ?)', (path_id, file_hash, 1))
+            elif existing_hash[0] != file_hash:
+                modified = True
+                c_integrity.execute('UPDATE file_hashes SET hash=?, modified=? WHERE file_path_id=?', (file_hash, 1, path_id))
+
+        changes_detected.append((path_id, path, modified))
+
+    conn_integrity.commit()
+    conn_integrity.close()
+
+    return changes_detected
+    
+def use_integrity(db_file_path, integrity_db_file):
+    changes_detected = check_integrity(db_file_path, integrity_db_file)
+
+    if changes_detected is None:
+        return []  # Return an empty list if no changes are detected
+
+    integrity_results = []
+    for path_id, path, modified in changes_detected:
+        integrity_results.append((path_id, path, modified))
+
+    return integrity_results
