@@ -74,7 +74,7 @@
     </div>
 
     <!-- Form to add a path -->
-<div style="margin-left: 50px;">
+<div style="margin-left: 350px;">
 <p>Add Path:</p>
 <form method="post" action="{{ url_for('add_path') }}">
     <label for="path">Path:</label>
@@ -96,7 +96,7 @@
 <br>
 <br>
 
-
+<div style="margin-left: 50px;">
 <h1>Integrity Results</h1>
 <div id="integrityResults">
     <ul>
@@ -121,6 +121,7 @@
             </tr>
         {% endfor %}
     </table>
+</div>
 
 </table>
     </table>
@@ -150,6 +151,7 @@
             updateLogContent();
         }, 5000);
     </script>
+
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Include jQuery -->
     <script>
