@@ -52,7 +52,13 @@
         <!-- Form to change permissions -->
             <form method="post" action="{{ url_for('change_permissions') }}">
                 <label for="chemin">Chemin ID:</label>
-                <input type="text" id="chemin" name="chemin" required><br><br>
+                <input type="text" id="chemin" name="chemin" required><br>
+                <p>Entrer le numéro selon les modifications que vous voulez appliquer: 
+                    <br><br>
+                    4:Lecture
+                    2:Ecrire
+                    1:Exécuter
+                </p>
                 <label for="user">User Right:</label>
                 <input type="number" id="user" name="user" required><br><br>
                 <label for="group">Group Right:</label>
