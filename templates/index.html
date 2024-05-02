@@ -59,13 +59,13 @@
                     2:Ecrire
                     1:Exécuter
                 </p>
-                <label for="user">User Right:</label>
+                <label for="user">Droits d'utilisateur:</label>
                 <input type="number" id="user" name="user" required><br><br>
-                <label for="group">Group Right:</label>
+                <label for="group">Droits de groupe:</label>
                 <input type="number" id="group" name="group" required><br><br>
-                <label for="other">Other Right:</label>
+                <label for="other">Autres froits:</label>
                 <input type="number" id="other" name="other" required><br><br>
-                <button type="submit">Change Permissions</button>
+                <button type="submit">Changer les permissions</button>
             </form>
     </div>
         
@@ -80,30 +80,30 @@
     </div>
 
     <!-- Form to add a path -->
-<div style="margin-left: 350px;">
-<p>Add Path:</p>
+<div style="margin-left: 50px;">
+<p>Ajouter un chemin:</p>
 <form method="post" action="{{ url_for('add_path') }}">
-    <label for="path">Path:</label>
+    <label for="path">Chemin:</label>
     <input type="text" id="path" name="path" required><br><br>
-    <button type="submit">Add Path </button>
+    <button type="submit">Ajouter un chemin </button>
 </form>
 </div>
 
 
 <!-- Form to delete a path -->
 <div style="margin-left: 50px;">
-<p>Delete Path:</p>
+<p>Supprimer un chemin:</p>
 <form method="post" action="{{ url_for('delete_path') }}">
-    <label for="path">Path:</label>
+    <label for="path">Chemin:</label>
     <input type="text" id="path" name="path" required><br><br>
-    <button type="submit">Delete Path</button>
+    <button type="submit">Supprimer un chemin</button>
 </form>
 </div>
 <br>
 <br>
 
 <div style="margin-left: 50px;">
-<h1>Integrity Results</h1>
+<h1>Intégrité</h1>
 <div id="integrityResults">
     <ul>
         {% for result in integrity_results %}
@@ -111,10 +111,10 @@
         {% endfor %}
     </ul>    
 </div>
-<button id="updateButton">Update Integrity</button>
+<button id="updateButton">Mettre à jour l'intégrité</button>
 <br>
 <br>
-<h2> Database Content:</h2>
+<h2> Contenu de la base de données:</h2>
     <table border="1">
         <tr>
             <th>ID</th>
@@ -131,7 +131,7 @@
 
 </table>
     </table>
-    <h1>Log Viewer</h1>
+    <h1>Journal des logs </h1>
     <pre id="logContent">{{ log_contents }}</pre>
 
     <script src="../static/Projet2.js">
