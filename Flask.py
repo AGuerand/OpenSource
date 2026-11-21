@@ -185,9 +185,9 @@ def login():
         
         if verify_password("password.txt", request.form['password']):
             
-            sender_email = 'nova77230@gmail.com'
+            sender_email = 'Add yours'
             sender_password = 'yfjq hsmj dwqp lcjx'
-            receiver_email = 'anthony.guerand2001@gmail.com'
+            receiver_email = 'Add yours'
             secret, otp_value = double_auth(sender_email, sender_password, receiver_email)
            
             session['secret'] = secret
