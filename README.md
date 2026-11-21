@@ -1,4 +1,4 @@
-# OpenSource
+# OpenSource file/folder monitor
 password = password
 
 changement de droit en octal
